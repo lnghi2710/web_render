@@ -1,0 +1,103 @@
+{
+  "departments" : [ "Công nghệ phần mềm", "Hệ thống thông tin", "Khoa học máy tính", "Mạng máy tính và truyền thông", "Kỹ thuật máy tính" ],
+  "groups" : [ {
+    "id" : 2,
+    "name" : "SE-01",
+    "leader" : "Hoàng Hữu Nguyên Anh - 21161067",
+    "members" : "21161067 - Hoàng Hữu Nguyên Anh, 20146298 - Hoàng Gia Bảo, 22146178 - Trần Hải Nam",
+    "topicId" : 1,
+    "councilScore" : 8.0,
+    "finalScore" : 8.5,
+    "reportSubmitted" : false,
+    "reviewerScore" : 9.0,
+    "status" : "Đã công bố kết quả"
+  } ],
+  "nextId" : 20,
+  "notifications" : [ {
+    "id" : 12,
+    "recipientUsername" : "21161067",
+    "title" : "test",
+    "message" : "test",
+    "createdAt" : "2026-10-08T09:11:26.1489987",
+    "read" : false,
+    "readAt" : null
+  }, {
+    "id" : 13,
+    "recipientUsername" : "20146298",
+    "title" : "test",
+    "message" : "test",
+    "createdAt" : "2026-10-08T09:11:26.1489987",
+    "read" : false,
+    "readAt" : null
+  }, {
+    "id" : 14,
+    "recipientUsername" : "22146178",
+    "title" : "test",
+    "message" : "test",
+    "createdAt" : "2026-10-08T09:11:26.1489987",
+    "read" : false,
+    "readAt" : null
+  }, {
+    "id" : 15,
+    "recipientUsername" : "24110037",
+    "title" : "test",
+    "message" : "test",
+    "createdAt" : "2026-10-08T09:11:26.1489987",
+    "read" : false,
+    "readAt" : null
+  }, {
+    "id" : 16,
+    "recipientUsername" : "21161067",
+    "title" : "tb",
+    "message" : "tb",
+    "createdAt" : "2026-10-08T09:20:59.1320133",
+    "read" : false,
+    "readAt" : null
+  }, {
+    "id" : 17,
+    "recipientUsername" : "20146298",
+    "title" : "tb",
+    "message" : "tb",
+    "createdAt" : "2026-10-08T09:20:59.1335203",
+    "read" : false,
+    "readAt" : null
+  }, {
+    "id" : 18,
+    "recipientUsername" : "22146178",
+    "title" : "tb",
+    "message" : "tb",
+    "createdAt" : "2026-10-08T09:20:59.1335203",
+    "read" : false,
+    "readAt" : null
+  }, {
+    "id" : 19,
+    "recipientUsername" : "24110037",
+    "title" : "tb",
+    "message" : "tb",
+    "createdAt" : "2026-10-08T09:20:59.1335203",
+    "read" : false,
+    "readAt" : null
+  } ],
+  "periods" : [ {
+    "id" : 1,
+    "name" : "KLTN học kỳ 1 - 2026",
+    "type" : "KLTN",
+    "teacherStart" : "2026-09-26",
+    "teacherEnd" : "2026-10-14",
+    "studentStart" : "2026-10-06",
+    "studentEnd" : "2026-10-26",
+    "reviewerDeadline" : "2026-11-20",
+    "defenseDate" : "2026-12-05",
+    "published" : true
+  } ],
+  "topics" : [ {
+    "id" : 1,
+    "title" : "Cổng thông tin đăng ký đề tài CNTT",
+    "description" : "Xây dựng quy trình đăng ký, phê duyệt và công bố kết quả đề tài.",
+    "department" : "Công nghệ phần mềm",
+    "supervisor" : "Hoàng Thái Xuân Khoa",
+    "coSupervisor" : "",
+    "periodId" : 1,
+    "status" : "COMPLETED"
+  } ]
+}

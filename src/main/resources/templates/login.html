@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Đăng nhập | Quản lý đề tài</title>
+    <style>
+        /* Giao diện đăng nhập hiện dùng CSS nội tuyến; Bootstrap/Tailwind chưa được tích hợp. */
+        :root { --ink:#17212b; --muted:#687780; --teal:#163c3a; --teal-light:#2c7770; --orange:#ef8d4b; --paper:#f4f7f5; }
+        * { box-sizing:border-box; } body { min-height:100vh; margin:0; display:grid; place-items:center; background:linear-gradient(135deg,#eef5f2 0%,#f9f3eb 100%); color:var(--ink); font-family:"Segoe UI", "Noto Sans", Arial, sans-serif; transition:background .2s,color .2s; }
+        .shell { width:min(980px,92vw); display:grid; grid-template-columns:1.08fr .92fr; overflow:hidden; background:#fff; box-shadow:0 24px 70px rgba(22,60,58,.15); }
+        .intro { position:relative; padding:46px; color:var(--ink); background:#fff; border-bottom:7px solid var(--orange); } .intro:after { content:""; position:absolute; right:-45px; bottom:-55px; width:190px; height:190px; border:28px solid rgba(239,141,75,.1); transform:rotate(28deg); } .brand { display:flex; align-items:center; gap:14px; margin-bottom:44px; } .brand-mark { display:block; width:auto; height:96px; max-width:100px; object-fit:contain; background:#fff; } .brand-name { max-width:240px; color:var(--teal); font:700 12px/1.35 "Segoe UI", Arial, sans-serif; letter-spacing:.6px; text-transform:uppercase; } h1 { max-width:390px; margin:0; color:var(--teal); font-size:clamp(38px,5vw,58px); line-height:1.02; letter-spacing:-1px; } .intro p { max-width:390px; color:var(--muted); line-height:1.7; }
+        .login { padding:48px; background:#f3f8f5; } h2 { margin-top:0; font-size:28px; } .kicker { margin:0 0 8px; color:var(--orange); font:700 11px "Segoe UI", Arial, sans-serif; letter-spacing:1px; text-transform:uppercase; } label { display:block; margin:16px 0 6px; color:var(--muted); font:700 12px "Segoe UI", "Noto Sans", Arial, sans-serif; } input { width:100%; padding:12px; border:1px solid #cbd7d8; background:#fff; font:14px "Segoe UI", "Noto Sans", Arial, sans-serif; } input:focus { outline:3px solid rgba(239,141,75,.2); border-color:var(--orange); } button { width:100%; margin-top:22px; padding:13px; border:0; color:white; background:#0b6b67; cursor:pointer; font:700 13px "Segoe UI", "Noto Sans", Arial, sans-serif; } button:hover { background:#095955; }
+        .error { padding:12px; color:#96372d; background:#fff0ed; border-left:4px solid #bd4c3e; font:13px Arial,sans-serif; } .accounts { margin-top:26px; padding-top:18px; border-top:1px solid #dbe3e8; color:var(--muted); font:12px Arial,sans-serif; line-height:1.7; } .accounts strong { color:var(--ink); }
+        .preferences { position:fixed; top:18px; right:18px; display:flex; gap:8px; z-index:2; } .preferences button { width:auto; margin:0; padding:9px 12px; border-radius:8px; }
+        body[data-theme="dark"] { --ink:#e8f0f6; --muted:#a9b8c6; background:linear-gradient(135deg,#111c27,#1b2a38); }
+        body[data-theme="dark"] .shell,body[data-theme="dark"] .intro { color:var(--ink); background:#1b2a38; }
+        body[data-theme="dark"] .login { background:#223443; } body[data-theme="dark"] input { color:var(--ink); background:#172633; border-color:#405262; }
+        body[data-theme="dark"] .brand-name,body[data-theme="dark"] h1 { color:#73d5c7; } body[data-theme="dark"] .accounts { border-color:#405262; }
+        @media(max-width:700px) { .shell { grid-template-columns:1fr; } .intro,.login { padding:30px; } h1 { font-size:34px; } }
+    </style>
+</head>
+<body>
+<div class="preferences"><button type="button" id="language-toggle">EN</button><button type="button" id="theme-toggle">🌙 <span data-i18n="darkMode">Giao diện tối</span></button></div>
+<div class="shell">
+    <section class="intro"><div class="brand"><img class="brand-mark" th:src="@{/images/hcmute-logo.jpg}" alt="Logo Trường Đại học Công nghệ Kỹ thuật"><div class="brand-name">Trường Đại học Công nghệ Kỹ thuật<br>Khoa Công nghệ thông tin</div></div><h1 data-i18n="title">Đề tài<br>sinh viên</h1><p data-i18n="intro">Không gian làm việc cho đăng ký, hướng dẫn, phản biện và công bố kết quả.</p></section>
+    <section class="login"><p class="kicker" data-i18n="kicker">Cổng quản lý học vụ</p><h2 data-i18n="loginTitle">Đăng nhập hệ thống</h2>
+        <div th:if="${errorMessage}" class="error" th:text="${errorMessage}"></div>
+        <form method="post" th:action="@{/login}"><label for="username" data-i18n="username">Tên đăng nhập</label><input id="username" name="username" th:value="${username}" required autofocus><label for="password" data-i18n="password">Mật khẩu</label><input id="password" name="password" type="password" required><button data-i18n="loginButton">Đăng nhập</button></form>
+        <div class="accounts"><strong data-i18n="accountExamples">Tài khoản sử dụng</strong><br><span data-i18n="adminLabel">Trưởng khoa</span>: <b>admin.khoa</b> / 123456<br><span data-i18n="teacherLabel">Giảng viên</span>: <b>gv.khoa</b> / 123456<br><span data-i18n="studentLabel">Sinh viên</span>: <b>21161067</b> / 123456</div>
+    </section>
+</div>
+<script>
+    // Dùng cùng các khóa localStorage với dashboard để ngôn ngữ/giao diện không bị đặt lại khi đăng nhập.
+    const loginText = {
+        vi: { darkMode:"Giao diện tối",lightMode:"Giao diện sáng",title:"Đề tài<br>sinh viên",intro:"Không gian làm việc cho đăng ký, hướng dẫn, phản biện và công bố kết quả.",kicker:"Cổng quản lý học vụ",loginTitle:"Đăng nhập hệ thống",username:"Tên đăng nhập",password:"Mật khẩu",loginButton:"Đăng nhập",accountExamples:"Tài khoản sử dụng",adminLabel:"Trưởng khoa",teacherLabel:"Giảng viên",studentLabel:"Sinh viên" },
+        en: { darkMode:"Dark mode",lightMode:"Light mode",title:"Student<br>projects",intro:"A workspace for registration, supervision, review and results.",kicker:"Academic management portal",loginTitle:"Sign in",username:"Username",password:"Password",loginButton:"Sign in",accountExamples:"Accounts",adminLabel:"Dean",teacherLabel:"Lecturer",studentLabel:"Student" }
+    };
+    const loginLanguageButton = document.getElementById("language-toggle");
+    const loginThemeButton = document.getElementById("theme-toggle");
+    function applyLoginLanguage(language) {
+        document.documentElement.lang = language;
+        document.querySelectorAll("[data-i18n]").forEach(element => {
+            const key = element.dataset.i18n;
+            if (key === "title") element.innerHTML = loginText[language][key];
+            else element.textContent = loginText[language][key];
+        });
+        loginLanguageButton.textContent = language === "vi" ? "EN" : "VI";
+        loginThemeButton.querySelector("span").textContent =
+            loginText[language][document.body.dataset.theme === "dark" ? "lightMode" : "darkMode"];
+        localStorage.setItem("topic-language", language);
+    }
+    function applyLoginTheme(theme) {
+        document.body.dataset.theme = theme;
+        loginThemeButton.firstChild.textContent = theme === "dark" ? "☀️ " : "🌙 ";
+        const language = localStorage.getItem("topic-language") || "vi";
+        loginThemeButton.querySelector("span").textContent =
+            loginText[language][theme === "dark" ? "lightMode" : "darkMode"];
+        localStorage.setItem("topic-theme", theme);
+    }
+    loginLanguageButton.addEventListener("click", () =>
+        applyLoginLanguage((localStorage.getItem("topic-language") || "vi") === "vi" ? "en" : "vi"));
+    loginThemeButton.addEventListener("click", () =>
+        applyLoginTheme((localStorage.getItem("topic-theme") || "light") === "light" ? "dark" : "light"));
+    applyLoginTheme(localStorage.getItem("topic-theme") || "light");
+    applyLoginLanguage(localStorage.getItem("topic-language") || "vi");
+</script>
+</body>
+</html>

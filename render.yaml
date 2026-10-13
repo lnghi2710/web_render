@@ -1,0 +1,17 @@
+services:
+  - type: web
+    name: student-topic-management
+    runtime: docker
+    plan: free
+    healthCheckPath: /login
+    envVars:
+      - key: SPRING_PROFILES_ACTIVE
+        value: prod
+      - key: DATABASE_URL
+        sync: false
+      - key: DATABASE_USERNAME
+        sync: false
+      - key: DATABASE_PASSWORD
+        sync: false
+      - key: APP_INITIAL_ADMIN_PASSWORD
+        sync: false

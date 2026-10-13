@@ -1,0 +1,104 @@
+{
+  "accounts" : [ {
+    "username" : "admin.khoa",
+    "password" : "$2a$10$mO43tpL92I0wkk80s0xixeUDIG3Eek55hqt9vcS.dI68q313TVNg6",
+    "displayName" : "Ban chủ nhiệm khoa",
+    "studentId" : null,
+    "role" : "ADMIN",
+    "admin" : true,
+    "passwordHash" : "$2a$10$mO43tpL92I0wkk80s0xixeUDIG3Eek55hqt9vcS.dI68q313TVNg6",
+    "student" : false,
+    "teacher" : true
+  }, {
+    "username" : "gv.khoa",
+    "password" : "$2a$10$8jbTqasmngREBlMUPwrFz.USx0sY84XaK.b2MhBKap5IjUFCmNzP2",
+    "displayName" : "Hoàng Thái Xuân Khoa",
+    "studentId" : null,
+    "role" : "TEACHER",
+    "admin" : false,
+    "passwordHash" : "$2a$10$8jbTqasmngREBlMUPwrFz.USx0sY84XaK.b2MhBKap5IjUFCmNzP2",
+    "student" : false,
+    "teacher" : true
+  }, {
+    "username" : "21161067",
+    "password" : "$2a$10$eI16C3SxyTseHFwJ0Az4KO5.yLCe2yhYTEB6KVgJ7Ws6xgrCP/7e6",
+    "displayName" : "Hoàng Hữu Nguyên Anh",
+    "studentId" : "21161067",
+    "role" : "STUDENT",
+    "admin" : false,
+    "passwordHash" : "$2a$10$eI16C3SxyTseHFwJ0Az4KO5.yLCe2yhYTEB6KVgJ7Ws6xgrCP/7e6",
+    "student" : true,
+    "teacher" : false
+  }, {
+    "username" : "20146298",
+    "password" : "$2a$10$HkxmaJ.sY73v/YwsDaojsOgBKXedoW.bcTbJnCUi7nKiRvpRt13SO",
+    "displayName" : "Hoàng Gia Bảo",
+    "studentId" : "20146298",
+    "role" : "STUDENT",
+    "admin" : false,
+    "passwordHash" : "$2a$10$HkxmaJ.sY73v/YwsDaojsOgBKXedoW.bcTbJnCUi7nKiRvpRt13SO",
+    "student" : true,
+    "teacher" : false
+  }, {
+    "username" : "22146178",
+    "password" : "$2a$10$D6HFpGKhfs24Pq8HcDLRBOjT8UBAnJEVqj5xTCbKVWb.XHDcNkSLW",
+    "displayName" : "Trần Hải Nam",
+    "studentId" : "22146178",
+    "role" : "STUDENT",
+    "admin" : false,
+    "passwordHash" : "$2a$10$D6HFpGKhfs24Pq8HcDLRBOjT8UBAnJEVqj5xTCbKVWb.XHDcNkSLW",
+    "student" : true,
+    "teacher" : false
+  }, {
+    "username" : "24110037",
+    "password" : "$2a$10$RI1dAHh2yuoVCMhNf2.Kiuz2fYij9QtBuKOkNj6ie05fZSHZJmVaS",
+    "displayName" : "Lý Nghị",
+    "studentId" : "24110037",
+    "role" : "STUDENT",
+    "admin" : false,
+    "passwordHash" : "$2a$10$RI1dAHh2yuoVCMhNf2.Kiuz2fYij9QtBuKOkNj6ie05fZSHZJmVaS",
+    "student" : true,
+    "teacher" : false
+  }, {
+    "username" : "bm.khoa",
+    "password" : "$2a$10$b6jwDjq79MOYrIRF4tTJd.sI9CQFfGdJ/dSqjHriBMDC0qVEKRG1G",
+    "displayName" : "Trưởng bộ môn Công nghệ phần mềm",
+    "studentId" : null,
+    "role" : "DEPARTMENT_HEAD",
+    "admin" : false,
+    "passwordHash" : "$2a$10$b6jwDjq79MOYrIRF4tTJd.sI9CQFfGdJ/dSqjHriBMDC0qVEKRG1G",
+    "student" : false,
+    "teacher" : true
+  }, {
+    "username" : "gv.hd",
+    "password" : "$2a$10$8yKryteG/vVo7xuye2Og8eA.nUg8YSOp9NYCRSZxNbKkWi5ushT3S",
+    "displayName" : "Giảng viên hướng dẫn",
+    "studentId" : null,
+    "role" : "SUPERVISOR",
+    "admin" : false,
+    "passwordHash" : "$2a$10$8yKryteG/vVo7xuye2Og8eA.nUg8YSOp9NYCRSZxNbKkWi5ushT3S",
+    "student" : false,
+    "teacher" : true
+  }, {
+    "username" : "gv.pb",
+    "password" : "$2a$10$IX4ArVNTr4u0fu9fM8aOL.0DQAIrNpLWsJA0fJFjWoEtthRxw.f1a",
+    "displayName" : "Giảng viên phản biện",
+    "studentId" : null,
+    "role" : "REVIEWER",
+    "admin" : false,
+    "passwordHash" : "$2a$10$IX4ArVNTr4u0fu9fM8aOL.0DQAIrNpLWsJA0fJFjWoEtthRxw.f1a",
+    "student" : false,
+    "teacher" : true
+  }, {
+    "username" : "hoi.dong",
+    "password" : "$2a$10$lGAremXf2lUPMg.uL78wNewXfJxy23oK0.4lweIPC1iEN3NJeFJy2",
+    "displayName" : "Đại diện Hội đồng",
+    "studentId" : null,
+    "role" : "COUNCIL",
+    "admin" : false,
+    "passwordHash" : "$2a$10$lGAremXf2lUPMg.uL78wNewXfJxy23oK0.4lweIPC1iEN3NJeFJy2",
+    "student" : false,
+    "teacher" : true
+  } ],
+  "seedVersion" : 3
+}

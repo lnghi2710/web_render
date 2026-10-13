@@ -1,0 +1,525 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quản lý đề tài sinh viên</title>
+    <style>
+        /* Giao diện mẫu đang dùng token CSS dùng chung; Bootstrap/Tailwind chưa được thêm vào dự án. */
+        :root { color-scheme:light; --ink:#172b3a; --muted:#657788; --line:#dce5ed; --paper:#f3f7fb; --surface:#fff; --surface-soft:#f7fafc; --teal:#087f78; --teal-dark:#07534f; --orange:#ee9256; --danger:#b7443b; --shadow:0 14px 38px rgba(22,53,73,.08); }
+        body[data-theme="dark"] { color-scheme:dark; --ink:#e8f0f6; --muted:#a9b8c6; --line:#344656; --paper:#111c27; --surface:#1b2a38; --surface-soft:#223443; --teal:#4bc3b4; --teal-dark:#152833; --orange:#f2a16a; --danger:#ff8e82; --shadow:0 14px 38px rgba(0,0,0,.2); }
+        * { box-sizing:border-box; }
+        [hidden] { display:none !important; }
+        body { margin:0; background:var(--paper); color:var(--ink); font-family:"Segoe UI","Noto Sans",Arial,sans-serif; transition:background .2s,color .2s; }
+        header { padding:22px max(5vw,24px) 30px; color:#fff; background:linear-gradient(115deg,#103d47,var(--teal-dark)); border-bottom:5px solid var(--orange); }
+        .topbar,.brand,.userbar,.header-actions,.nav,.actions { display:flex; align-items:center; gap:12px; }
+        .topbar { max-width:1440px; margin:0 auto 26px; justify-content:space-between; flex-wrap:wrap; }
+        .brand { padding:8px 14px 8px 8px; color:#17323d; background:#fff; border-radius:12px; }
+        .brand-mark { width:auto; height:54px; max-width:62px; object-fit:contain; }
+        .brand-name { font-size:11px; line-height:1.4; letter-spacing:.5px; font-weight:800; text-transform:uppercase; }
+        .userbar { flex-wrap:wrap; justify-content:flex-end; color:#e5f2f3; font-size:13px; }
+        .header-actions { gap:8px; }
+        h1 { max-width:1440px; margin:0 auto; font-size:clamp(27px,4vw,42px); letter-spacing:-1px; }
+        header>p { max-width:1440px; margin:8px auto 0; color:#c3d8dd; }
+        main { max-width:1440px; margin:auto; padding:26px 5vw 64px; }
+        .message { margin:0 0 18px; padding:13px 16px; border-radius:10px; background:var(--surface); box-shadow:var(--shadow); }
+        .success { border-left:4px solid #288b5b; } .error { border-left:4px solid var(--danger); color:var(--danger); }
+        .nav { margin-bottom:22px; padding:7px; background:var(--surface); border:1px solid var(--line); border-radius:14px; box-shadow:var(--shadow); overflow:auto; }
+        .nav button { flex:0 0 auto; color:var(--muted); background:transparent; }
+        .nav button.active { color:#fff; background:var(--teal); }
+        button { border:0; border-radius:9px; padding:10px 14px; color:#fff; background:var(--teal); cursor:pointer; font:700 13px "Segoe UI","Noto Sans",Arial,sans-serif; transition:transform .15s,filter .15s; }
+        button:hover { filter:brightness(1.06); transform:translateY(-1px); }
+        button.secondary { color:var(--teal); background:var(--surface-soft); border:1px solid var(--line); }
+        .logout { color:#fff; background:rgba(255,255,255,.12); border:1px solid rgba(255,255,255,.35); }
+        .nav-content[hidden] { display:none; }
+        .stats { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:14px; margin-bottom:22px; }
+        .stat,.panel { background:var(--surface); border:1px solid var(--line); border-radius:16px; box-shadow:var(--shadow); }
+        .stat { padding:20px; border-top:3px solid var(--orange); }
+        .stat strong { display:block; margin-bottom:5px; color:var(--teal); font-size:32px; }
+        .stat span,.hint,small { color:var(--muted); }
+        .panel { padding:22px; margin-bottom:18px; }
+        .panel h2 { margin:0 0 16px; font-size:22px; }
+        .eyebrow { margin:0 0 7px; color:var(--orange); text-transform:uppercase; font-size:10px; font-weight:800; letter-spacing:1.2px; }
+        .grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:18px; align-items:start; }
+        .wide { grid-column:1/-1; }
+        .quick-links { display:flex; flex-wrap:wrap; gap:10px; }
+        form { display:grid; gap:11px; }
+        label { display:grid; gap:6px; color:var(--muted); font-size:12px; font-weight:700; }
+        input,textarea,select { width:100%; min-width:0; border:1px solid var(--line); border-radius:8px; padding:10px 11px; color:var(--ink); background:var(--surface-soft); font:14px "Segoe UI","Noto Sans",Arial,sans-serif; }
+        input:focus,textarea:focus,select:focus { outline:3px solid color-mix(in srgb,var(--orange) 28%,transparent); border-color:var(--orange); }
+        textarea { min-height:150px; resize:vertical; line-height:1.55; }
+        input[readonly] { opacity:.8; cursor:not-allowed; }
+        .two { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+        .recipient-picker { max-height:260px; margin:0; padding:10px 12px; overflow:auto; border:1px solid var(--line); border-radius:8px; }
+        .recipient-picker legend { padding:0 5px; color:var(--muted); font-size:12px; font-weight:700; }
+        .recipient-option { display:flex; align-items:center; gap:9px; padding:7px 2px; color:var(--ink); font-size:13px; font-weight:500; cursor:pointer; }
+        .recipient-option input[type="checkbox"] { width:16px; min-width:16px; height:16px; margin:0; accent-color:var(--teal); }
+        .table-wrap { overflow:auto; }
+        table { width:100%; border-collapse:collapse; font-size:13px; }
+        th,td { padding:12px 10px; text-align:left; vertical-align:top; border-bottom:1px solid var(--line); }
+        th { color:var(--muted); font-size:10px; letter-spacing:.6px; text-transform:uppercase; }
+        td small { display:block; max-width:560px; margin-top:5px; line-height:1.5; }
+        .badge { display:inline-block; padding:5px 9px; color:var(--teal); background:color-mix(in srgb,var(--teal) 12%,var(--surface)); border-radius:20px; font-size:11px; font-weight:700; white-space:nowrap; }
+        .actions { flex-wrap:wrap; gap:7px; }
+        .eye { width:38px; height:36px; padding:4px; font-size:17px; }
+        details.edit-box { min-width:250px; }
+        details.edit-box summary { color:var(--teal); cursor:pointer; font-weight:700; }
+        details.edit-box form { min-width:280px; padding:12px 0 4px; }
+        .hint { margin:0 0 8px; font-size:12px; line-height:1.55; }
+        .empty { padding:18px; text-align:center; color:var(--muted); }
+        dialog { width:min(480px,calc(100vw - 32px)); padding:0; color:var(--ink); background:var(--surface); border:1px solid var(--line); border-radius:16px; box-shadow:0 28px 90px rgba(0,0,0,.28); }
+        dialog::backdrop { background:rgba(10,24,33,.62); }
+        .dialog-body { padding:22px; }
+        .dialog-body h2 { margin:0 0 18px; }
+        .detail-row { padding:13px 0; border-top:1px solid var(--line); }
+        .detail-row strong { display:block; margin-bottom:5px; color:var(--muted); font-size:11px; text-transform:uppercase; }
+        .dialog-actions { display:flex; justify-content:flex-end; margin-top:18px; }
+        @media(max-width:850px) { .stats { grid-template-columns:repeat(2,minmax(0,1fr)); } .grid { grid-template-columns:1fr; } .wide { grid-column:auto; } }
+        @media(max-width:560px) { header { padding:18px 18px 24px; } main { padding:20px 16px 44px; } .stats,.two { grid-template-columns:1fr; } .panel { padding:17px; } .topbar { align-items:flex-start; } .userbar { align-items:flex-end; flex-direction:column; } }
+    </style>
+</head>
+<body>
+<header>
+    <div class="topbar">
+        <div class="brand"><img class="brand-mark" th:src="@{/images/hcmute-logo.jpg}" alt="Logo trường"><div class="brand-name">Trường Đại học Công nghệ Kỹ thuật<br>Khoa Công nghệ thông tin</div></div>
+        <div class="userbar">
+            <span><span th:text="${currentUser.displayName}"></span> · <span id="role-name" th:data-role="${currentUser.role.label}" th:text="${currentUser.role.label}"></span></span>
+            <div class="header-actions">
+                <button class="logout" id="language-toggle" type="button" aria-label="Switch language">EN</button>
+                <button class="logout" id="theme-toggle" type="button" aria-label="Switch theme">🌙 <span data-i18n="darkMode">Giao diện tối</span></button>
+                <form method="post" th:action="@{/logout}"><button class="logout" data-i18n="logout">Đăng xuất</button></form>
+            </div>
+        </div>
+    </div>
+    <h1 data-i18n="pageTitle">Quản lý đề tài sinh viên</h1>
+    <p data-i18n="pageSubtitle">Quản lý đợt · đề tài · đăng ký · hướng dẫn · kết quả</p>
+</header>
+<main>
+    <div th:if="${successMessage}" class="message success" th:text="${successMessage}"></div>
+    <div th:if="${errorMessage}" class="message error" th:text="${errorMessage}"></div>
+
+    <!-- Các nút đổi mục chỉ ẩn/hiện panel phía trình duyệt, còn thao tác dữ liệu vẫn xử lý qua Spring MVC. -->
+    <nav class="nav" aria-label="Điều hướng chức năng">
+        <button class="active" type="button" data-tab="overview" data-i18n="overview">Tổng quan</button>
+        <button type="button" data-tab="periods" data-i18n="periods">Đợt đăng ký</button>
+        <button type="button" data-tab="topics" data-i18n="topics">Đề tài</button>
+        <button type="button" data-tab="groups" data-i18n="groupsResults">Nhóm & kết quả</button>
+        <button type="button" data-tab="notifications" data-i18n="notifications">Thông báo</button>
+        <button type="button" data-tab="accounts" data-i18n="accounts" th:if="${canAdmin}">Tài khoản</button>
+    </nav>
+
+    <section class="nav-content" data-panel="overview">
+        <!-- Không render khối thống kê cho sinh viên; đây không chỉ là ẩn bằng CSS. -->
+        <section class="stats" th:if="${!currentUser.isStudent()}">
+            <div class="stat"><strong th:text="${#lists.size(periods)}">0</strong><span data-i18n="statPeriods">Đợt đăng ký</span></div>
+            <div class="stat"><strong th:text="${#lists.size(topics)}">0</strong><span data-i18n="statTopics">Đề tài trong hệ thống</span></div>
+            <div class="stat"><strong th:text="${#lists.size(groups)}">0</strong><span data-i18n="statGroups">Nhóm đăng ký</span></div>
+            <div class="stat"><strong th:text="${#lists.size(topics.?[status.name() == 'PUBLISHED'])}">0</strong><span data-i18n="statOpenTopics">Đề tài đang mở</span></div>
+        </section>
+        <section class="panel">
+            <p class="eyebrow" data-i18n="workspace">Không gian làm việc</p>
+            <h2 data-i18n="quickAccess">Truy cập nhanh</h2>
+            <div class="quick-links">
+                <button type="button" data-go-tab="topics" data-i18n="browseTopics">Xem danh sách đề tài</button>
+                <button type="button" class="secondary" data-go-tab="periods" data-i18n="viewPeriods">Xem các đợt đăng ký</button>
+                <button type="button" class="secondary" data-go-tab="groups" data-i18n="viewGroups">Nhóm và kết quả</button>
+            </div>
+            <p class="hint" style="margin-top:16px" data-i18n="dataNote">Thay đổi được lưu tự động và vẫn còn sau khi khởi động lại ứng dụng.</p>
+        </section>
+    </section>
+
+    <section class="nav-content" data-panel="notifications" hidden>
+        <div class="grid">
+            <section class="panel" th:if="${canSendNotifications}">
+                <p class="eyebrow" data-i18n="announcements">Thông báo</p>
+                <h2 data-i18n="createAnnouncement">Tạo thông báo</h2>
+                <form method="post" th:action="@{/projects/announcements}">
+                    <label><span data-i18n="notificationTitle">Tiêu đề</span><input name="title" maxlength="200" required></label>
+                    <label><span data-i18n="notificationMessage">Nội dung</span><textarea name="message" required></textarea></label>
+                    <fieldset class="recipient-picker">
+                        <legend data-i18n="notificationRecipients">Tích chọn người nhận</legend>
+                        <label class="recipient-option" th:each="recipient : ${notificationRecipients}">
+                            <input type="checkbox" name="recipients" th:value="${recipient.username}">
+                            <span th:text="|${recipient.displayName} (${recipient.username}) · ${recipient.role.label}|"></span>
+                        </label>
+                    </fieldset>
+                    <button data-i18n="publishAnnouncement">Đăng thông báo</button>
+                </form>
+            </section>
+            <section class="panel" th:classappend="${!canSendNotifications} ? 'wide'">
+                <p class="eyebrow" data-i18n="notifications">Thông báo</p>
+                <h2><span data-i18n="notificationInbox">Hộp thông báo</span> · <span th:text="${unreadNotificationCount}">0</span></h2>
+                <div th:if="${#lists.isEmpty(notifications)}" class="empty" data-i18n="noNotifications">Chưa có thông báo.</div>
+                <article th:each="notification : ${notifications}" class="detail-row">
+                    <strong th:text="${notification.title}"></strong>
+                    <p th:text="${notification.message}"></p>
+                    <small th:text="${notification.createdAt}"></small>
+                    <form th:if="${!notification.read && !currentUser.isStudent()}" method="post" th:action="@{/projects/notifications/read}">
+                        <input type="hidden" name="id" th:value="${notification.id}">
+                        <button type="submit" class="secondary" data-i18n="markRead">Đánh dấu đã đọc</button>
+                    </form>
+                </article>
+            </section>
+        </div>
+    </section>
+
+    <section class="nav-content" data-panel="periods" hidden>
+        <div class="grid">
+            <!-- Chỉ vai trò khoa nhận form tạo đợt; controller còn kiểm tra lại quyền khi POST. -->
+            <section class="panel" th:if="${canAdmin}">
+                <p class="eyebrow" data-i18n="facultyOffice">Ban chủ nhiệm khoa</p>
+                <h2 data-i18n="createPeriod">Tạo đợt đăng ký</h2>
+                <form method="post" th:action="@{/projects/periods}">
+                    <label><span data-i18n="periodName">Tên đợt</span><input name="name" required placeholder="KLTN học kỳ 2 - 2026"></label>
+                    <label><span data-i18n="projectType">Loại đề tài</span><select name="type"><option th:each="type : ${types}" th:value="${type}" th:data-type="${type.name()}" th:text="${type.label}"></option></select></label>
+                    <div class="two"><label><span data-i18n="teacherStart">Giáo viên bắt đầu</span><input type="date" name="teacherStart" required></label><label><span data-i18n="teacherEnd">Giáo viên kết thúc</span><input type="date" name="teacherEnd" required></label></div>
+                    <div class="two"><label><span data-i18n="studentStart">Sinh viên bắt đầu</span><input type="date" name="studentStart" required></label><label><span data-i18n="studentEnd">Sinh viên kết thúc</span><input type="date" name="studentEnd" required></label></div>
+                    <div class="two"><label><span data-i18n="reviewDeadline">Hạn nộp điểm phản biện</span><input type="date" name="reviewerDeadline"></label><label><span data-i18n="defenseDate">Ngày hội đồng</span><input type="date" name="defenseDate"></label></div>
+                    <button data-i18n="createPeriodButton">Tạo đợt đăng ký</button>
+                </form>
+            </section>
+            <section class="panel" th:classappend="${!canAdmin} ? 'wide'">
+                <p class="eyebrow" data-i18n="schedule">Lịch học vụ</p><h2 data-i18n="periodList">Các đợt đăng ký</h2>
+                <div class="table-wrap"><table><thead><tr><th data-i18n="periodName">Tên đợt</th><th data-i18n="projectType">Loại</th><th data-i18n="teacherRegistration">Đăng ký GV</th><th data-i18n="studentRegistration">Đăng ký SV</th><th data-i18n="keyDates">Mốc quan trọng</th><th data-i18n="status">Trạng thái</th><th th:if="${canAdmin}" data-i18n="actions">Quản lý</th></tr></thead><tbody>
+                    <tr th:each="period : ${periods}">
+                        <td><strong th:text="${period.name}"></strong></td>
+                        <td><span class="badge" th:data-type="${period.type.name()}" th:text="${period.type.label}"></span></td>
+                        <td th:text="|${period.teacherStart} - ${period.teacherEnd}|"></td>
+                        <td th:text="|${period.studentStart} - ${period.studentEnd}|"></td>
+                        <td><small class="localized-date" data-date-kind="review" th:if="${period.reviewerDeadline}" th:data-date="${period.reviewerDeadline}" th:text="|Nộp điểm: ${period.reviewerDeadline}|"></small><small class="localized-date" data-date-kind="defense" th:if="${period.defenseDate}" th:data-date="${period.defenseDate}" th:text="|Báo cáo: ${period.defenseDate}|"></small></td>
+                        <td><span class="badge" th:data-status="${period.published ? 'Đang công bố' : 'Bản nháp'}" th:text="${period.published ? 'Đang công bố' : 'Bản nháp'}"></span></td>
+                        <td th:if="${canAdmin}"><details class="edit-box"><summary data-i18n="manage">Quản lý</summary>
+                            <form method="post" th:action="@{/projects/periods/update}">
+                                <input type="hidden" name="id" th:value="${period.id}">
+                                <label><span data-i18n="periodName">Tên đợt</span><input name="name" th:value="${period.name}" required></label>
+                                <label><span data-i18n="projectType">Loại đề tài</span><select name="type"><option th:each="type : ${types}" th:value="${type}" th:text="${type.label}" th:selected="${type == period.type}"></option></select></label>
+                                <div class="two"><label><span data-i18n="teacherStart">GV bắt đầu</span><input type="date" name="teacherStart" th:value="${period.teacherStart}" required></label><label><span data-i18n="teacherEnd">GV kết thúc</span><input type="date" name="teacherEnd" th:value="${period.teacherEnd}" required></label></div>
+                                <div class="two"><label><span data-i18n="studentStart">SV bắt đầu</span><input type="date" name="studentStart" th:value="${period.studentStart}" required></label><label><span data-i18n="studentEnd">SV kết thúc</span><input type="date" name="studentEnd" th:value="${period.studentEnd}" required></label></div>
+                                <div class="two"><label><span data-i18n="reviewDeadline">Hạn phản biện</span><input type="date" name="reviewerDeadline" th:value="${period.reviewerDeadline}"></label><label><span data-i18n="defenseDate">Ngày hội đồng</span><input type="date" name="defenseDate" th:value="${period.defenseDate}"></label></div>
+                                <button data-i18n="saveChanges">Lưu thay đổi</button>
+                            </form>
+                            <form method="post" th:action="@{/projects/periods/delete}" onsubmit="return confirm('Xóa đợt đăng ký này?')">
+                                <input type="hidden" name="id" th:value="${period.id}"><button class="secondary" data-i18n="delete">Xóa</button>
+                            </form>
+                        </details></td>
+                    </tr>
+                    <tr th:if="${#lists.isEmpty(periods)}"><td class="empty" colspan="7" data-i18n="noPeriods">Chưa có đợt đăng ký.</td></tr>
+                </tbody></table></div>
+            </section>
+        </div>
+    </section>
+
+    <section class="nav-content" data-panel="topics" hidden>
+        <div class="grid">
+            <!-- Tài khoản giáo viên quyết định supervisor; ô readonly chỉ là biểu hiện, server mới là nguồn tin cậy. -->
+            <section class="panel" th:if="${canCreateTopic}">
+                <p class="eyebrow" data-i18n="teacherWorkspace">Giảng viên</p>
+                <h2 data-i18n="addTopic">Thêm đề tài</h2>
+                <form method="post" th:action="@{/projects/topics}">
+                    <label><span data-i18n="topicTitle">Tên đề tài</span><input name="title" required></label>
+                    <label><span data-i18n="topicContent">Nội dung đề tài</span><textarea name="description" rows="8" required placeholder="Mục tiêu, phạm vi, công nghệ và kết quả mong đợi..."></textarea></label>
+                    <label><span data-i18n="department">Bộ môn</span><select name="department" required><option value="" disabled selected data-i18n="chooseDepartment">Chọn bộ môn</option><option th:each="department : ${departments}" th:value="${department}" th:data-department="${department}" th:text="${department}"></option></select></label>
+                    <label><span data-i18n="supervisor">Giảng viên hướng dẫn (khóa theo tài khoản)</span><input th:value="${currentUser.displayName}" readonly aria-readonly="true"></label>
+                    <label><span data-i18n="period">Đợt đăng ký</span><select name="periodId" required><option th:each="period : ${periods}" th:value="${period.id}" th:text="${period.name}"></option></select></label>
+                    <button data-i18n="saveTopic">Lưu đề tài</button>
+                </form>
+            </section>
+            <section class="panel" th:classappend="${!canCreateTopic} ? 'wide'">
+                <p class="eyebrow" data-i18n="topicDirectory">Danh mục đề tài</p><h2 data-i18n="topicList">Danh sách đề tài</h2>
+                <form method="get" th:action="@{/projects}" class="grid">
+                    <label><span data-i18n="searchKeyword">Từ khóa</span><input name="keyword" th:value="${keyword}"></label>
+                    <label><span data-i18n="department">Bộ môn</span><select name="department"><option value="" data-i18n="allDepartments">Tất cả bộ môn</option><option th:each="item : ${departments}" th:value="${item}" th:text="${item}" th:selected="${item == selectedDepartment}"></option></select></label>
+                    <label><span data-i18n="period">Đợt đăng ký</span><select name="periodId"><option value="" data-i18n="allPeriods">Tất cả đợt</option><option th:each="item : ${periods}" th:value="${item.id}" th:text="${item.name}" th:selected="${item.id == selectedPeriodId}"></option></select></label>
+                    <label><span data-i18n="topicStatus">Trạng thái đề tài</span><select name="status"><option value="" data-i18n="allStatuses">Tất cả trạng thái</option><option th:each="item : ${T(com.example.meetingroom.model.TopicStatus).values()}" th:value="${item.name()}" th:text="${item.label}" th:selected="${item == selectedStatus}"></option></select></label>
+                    <label><span data-i18n="supervisor">Giảng viên hướng dẫn</span><input name="supervisor" th:value="${supervisorFilter}"></label>
+                    <button type="submit" data-i18n="search">Tìm kiếm</button>
+                </form>
+                <p th:if="${canAdmin}"><a class="badge" data-i18n="exportExcel"
+                    th:href="@{/projects/reports/topics.xlsx(keyword=${keyword},department=${selectedDepartment},status=${selectedStatus},periodId=${selectedPeriodId},supervisor=${supervisorFilter})}">Xuất Excel</a></p>
+                <div class="table-wrap"><table><thead><tr><th data-i18n="topicTitle">Đề tài</th><th data-i18n="department">Bộ môn</th><th data-i18n="status">Trạng thái</th><th data-i18n="viewDetails">Chi tiết</th><th></th></tr></thead><tbody>
+                    <tr th:each="topic : ${topics}" th:if="${canManage || topic.status.name() == 'PUBLISHED' || topic.status.name() == 'ASSIGNED' || topic.status.name() == 'COMPLETED'}">
+                        <td><strong th:text="${topic.title}"></strong><small th:text="${topic.description}"></small></td>
+                        <td th:text="${topic.department}"></td>
+                        <td><span class="badge" th:data-status="${topic.status.label}" th:text="${topic.status.label}"></span></td>
+                        <!-- Chi tiết được giới hạn đúng thông tin hướng dẫn và số đăng ký theo yêu cầu. -->
+                        <td><button type="button" class="eye" data-topic-detail
+                            th:data-supervisor="${topic.supervisor}"
+                            th:data-registered="${registeredCounts[topic.id]}"
+                            aria-label="Xem chi tiết đề tài" title="Xem chi tiết">👁</button></td>
+                        <td><div class="actions">
+                            <form th:if="${canFacultyHead && topic.status.name() == 'DRAFT'}" method="post" th:action="@{/projects/topics/approve}"><input type="hidden" name="id" th:value="${topic.id}"><button class="secondary" data-i18n="approveTopic">Duyệt đề tài</button></form>
+                            <form th:if="${canFacultyHead && topic.status.name() == 'APPROVED'}" method="post" th:action="@{/projects/topics/publish}"><input type="hidden" name="id" th:value="${topic.id}"><button class="secondary" data-i18n="publish">Công bố</button></form>
+                            <details class="edit-box" th:if="${canSupervise && topic.supervisor == currentUser.displayName}"><summary data-i18n="editTopic">Chỉnh sửa</summary>
+                                <form method="post" th:action="@{/projects/topics/update}">
+                                    <input type="hidden" name="id" th:value="${topic.id}">
+                                    <label><span data-i18n="topicTitle">Tên đề tài</span><input name="title" th:value="${topic.title}" required></label>
+                                    <label><span data-i18n="topicContent">Nội dung đề tài</span><textarea name="description" rows="8" th:text="${topic.description}" required></textarea></label>
+                                    <label><span data-i18n="department">Bộ môn</span><select name="department" required><option th:each="department : ${departments}" th:value="${department}" th:data-department="${department}" th:text="${department}" th:selected="${department == topic.department}"></option></select></label>
+                                    <button data-i18n="saveChanges">Lưu thay đổi</button>
+                                </form>
+                            </details>
+                            <details class="edit-box" th:if="${canFacultyHead}"><summary data-i18n="editTopic">Chỉnh sửa</summary>
+                                <form method="post" th:action="@{/projects/topics/admin-update}">
+                                    <input type="hidden" name="id" th:value="${topic.id}">
+                                    <label><span data-i18n="topicTitle">Tên đề tài</span><input name="title" th:value="${topic.title}" required></label>
+                                    <label><span data-i18n="topicContent">Nội dung đề tài</span><textarea name="description" rows="6" th:text="${topic.description}" required></textarea></label>
+                                    <label><span data-i18n="department">Bộ môn</span><select name="department" required><option th:each="department : ${departments}" th:value="${department}" th:text="${department}" th:selected="${department == topic.department}"></option></select></label>
+                                    <label><span data-i18n="supervisor">Giảng viên hướng dẫn</span><select name="supervisorUsername" required><option th:each="teacher : ${teachers}" th:value="${teacher.username}" th:text="${teacher.displayName}" th:selected="${teacher.displayName == topic.supervisor}"></option></select></label>
+                                    <label><span data-i18n="period">Đợt đăng ký</span><select name="periodId" required><option th:each="period : ${periods}" th:value="${period.id}" th:text="${period.name}" th:selected="${period.id == topic.periodId}"></option></select></label>
+                                    <button data-i18n="saveChanges">Lưu thay đổi</button>
+                                </form>
+                            </details>
+                            <form th:if="${canFacultyHead}" method="post" th:action="@{/projects/topics/delete}" onsubmit="return confirm('Xóa đề tài này?')">
+                                <input type="hidden" name="id" th:value="${topic.id}"><button class="secondary" data-i18n="delete">Xóa</button>
+                            </form>
+                        </div></td>
+                    </tr>
+                    <tr th:if="${#lists.isEmpty(topics)}"><td colspan="5" class="empty" data-i18n="noTopics">Chưa có đề tài.</td></tr>
+                </tbody></table></div>
+            </section>
+        </div>
+    </section>
+
+    <section class="nav-content" data-panel="groups" hidden>
+        <div class="grid">
+            <section class="panel" th:if="${currentUser.isStudent()}">
+                <p class="eyebrow" data-i18n="studentWorkspace">Sinh viên</p><h2 data-i18n="registerGroup">Đăng ký nhóm</h2>
+                <p class="hint" data-i18n="groupLimit">Nhóm có tối đa 5 sinh viên. Mỗi đề tài chỉ nhận một nhóm đăng ký.</p>
+                <form method="post" th:action="@{/projects/groups}" th:if="${!#lists.isEmpty(availableTopics)}">
+                    <label><span data-i18n="groupName">Tên nhóm</span><input name="name" required placeholder="SE-02"></label>
+                    <label><span data-i18n="groupLeader">Nhóm trưởng</span><input name="leader" required></label>
+                    <label><span data-i18n="studentIds">Mã sinh viên, phân cách bằng dấu phẩy</span><input name="members" required placeholder="21161067, 20146298"></label>
+                    <label><span data-i18n="selectTopic">Chọn đề tài</span><select name="topicId" required><option th:each="topic : ${availableTopics}" th:value="${topic.id}" th:text="${topic.title}"></option></select></label>
+                    <button data-i18n="submitRegistration">Gửi đăng ký</button>
+                </form>
+                <p class="empty" th:if="${#lists.isEmpty(availableTopics)}" data-i18n="noAvailableTopics">Hiện không còn đề tài mở đăng ký.</p>
+            </section>
+            <section class="panel" th:classappend="${!currentUser.isStudent()} ? 'wide'">
+                <p class="eyebrow" data-i18n="assessment">Theo dõi thực hiện</p><h2 data-i18n="groupsResults">Nhóm và kết quả</h2>
+                <form method="get" th:action="@{/projects}">
+                    <label><span data-i18n="lookupPeriod">Tra cứu theo đợt</span><select name="periodId"><option value="" data-i18n="allPeriods">Tất cả đợt</option><option th:each="item : ${periods}" th:value="${item.id}" th:text="${item.name}" th:selected="${item.id == selectedPeriodId}"></option></select></label>
+                    <button type="submit" class="secondary" data-i18n="search">Tra cứu</button>
+                </form>
+                <div class="table-wrap"><table><thead><tr><th data-i18n="groupMembers">Nhóm / thành viên</th><th data-i18n="topic">Đề tài</th><th data-i18n="status">Trạng thái</th><th data-i18n="score">Điểm</th><th data-i18n="actions">Thao tác</th></tr></thead><tbody>
+                    <tr th:each="group : ${groups}">
+                        <td><strong th:text="${group.name}"></strong><small th:text="${group.members}"></small></td>
+                        <td th:text="|Mã đề tài #${group.topicId}|"></td>
+                        <td th:data-status="${group.status}" th:text="${group.status}"></td>
+                        <td th:text="${group.finalScore != null ? #numbers.formatDecimal(group.finalScore, 1, 1) : '—'}"></td>
+                        <td><div class="actions">
+                            <form th:if="${canFacultyHead && group.status == 'Chờ duyệt'}" method="post" th:action="@{/projects/groups/approve}"><input type="hidden" name="id" th:value="${group.id}"><button data-i18n="approve">Duyệt</button></form>
+                            <form th:if="${currentUser.isStudent() && group.status == 'Đã duyệt'}" method="post" th:action="@{/projects/groups/report}"><input type="hidden" name="id" th:value="${group.id}"><button class="secondary" data-i18n="submitReport">Nộp báo cáo</button></form>
+                            <!-- Form nhập điểm chỉ hiện cho khoa và admin; POST được khóa quyền ở controller. -->
+                            <form th:if="${canGrade}" method="post" th:action="@{/projects/groups/grade}">
+                                <input type="hidden" name="id" th:value="${group.id}">
+                                <label><span data-i18n="reviewerScore">Điểm phản biện</span><input name="reviewerScore" type="number" min="0" max="10" step="0.1" required></label>
+                                <label><span data-i18n="councilScore">Điểm hội đồng</span><input name="councilScore" type="number" min="0" max="10" step="0.1" required></label>
+                                <button data-i18n="gradePublish">Chấm điểm & công bố</button>
+                            </form>
+                        </div></td>
+                    </tr>
+                    <tr th:if="${#lists.isEmpty(groups)}"><td colspan="5" class="empty" data-i18n="noGroups">Chưa có nhóm đăng ký.</td></tr>
+                </tbody></table></div>
+                <p class="hint" th:if="${!canGrade && !currentUser.isStudent()}" data-i18n="gradingRestricted">Chấm điểm và công bố kết quả chỉ dành cho khoa và admin.</p>
+            </section>
+        </div>
+    </section>
+
+    <section class="nav-content" data-panel="accounts" hidden th:if="${canAdmin}">
+        <div class="grid">
+            <section class="panel">
+                <p class="eyebrow" data-i18n="facultyOffice">Ban chủ nhiệm khoa</p>
+                <h2 data-i18n="createAccount">Thêm tài khoản</h2>
+                <form method="post" th:action="@{/projects/accounts}">
+                    <label><span data-i18n="accountType">Vai trò</span><select name="role" id="account-role"><option value="STUDENT" data-i18n="studentRole">Sinh viên</option><option value="TEACHER" data-i18n="teacherRole">Giảng viên</option><option value="DEPARTMENT_HEAD">Trưởng bộ môn</option><option value="SUPERVISOR">Giảng viên hướng dẫn</option><option value="REVIEWER">Giảng viên phản biện</option><option value="COUNCIL">Hội đồng</option></select></label>
+                    <label><span data-i18n="username">Tên đăng nhập</span><input name="username" required></label>
+                    <label><span data-i18n="password">Mật khẩu</span><input name="password" type="password" required></label>
+                    <label><span data-i18n="displayName">Họ tên</span><input name="displayName" required></label>
+                    <label id="student-id-field"><span data-i18n="studentId">Mã sinh viên</span><input name="studentId"></label>
+                    <button data-i18n="createAccount">Thêm tài khoản</button>
+                </form>
+            </section>
+            <section class="panel">
+                <p class="eyebrow" data-i18n="accountDirectory">Danh mục tài khoản</p><h2 data-i18n="accounts">Tài khoản</h2>
+                <div class="table-wrap"><table><thead><tr><th data-i18n="username">Tên đăng nhập</th><th data-i18n="displayName">Họ tên</th><th data-i18n="accountType">Vai trò</th><th data-i18n="studentId">MSSV</th><th data-i18n="actions">Thao tác</th></tr></thead><tbody>
+                    <tr th:each="account : ${accounts}">
+                        <td th:text="${account.username}"></td><td th:text="${account.displayName}"></td>
+                        <td th:data-role="${account.role.label}" th:text="${account.role.label}"></td><td th:text="${account.studentId != null ? account.studentId : '—'}"></td>
+                        <td><form th:if="${account.role.name() != 'ADMIN'}" method="post" th:action="@{/projects/accounts/delete}" onsubmit="return confirm('Xóa tài khoản này?')"><input type="hidden" name="username" th:value="${account.username}"><button class="secondary" data-i18n="delete">Xóa</button></form><span th:if="${account.role.name() == 'ADMIN'}" class="hint" data-i18n="protectedAdmin">Tài khoản được bảo vệ</span></td>
+                    </tr>
+                </tbody></table></div>
+            </section>
+        </div>
+        <section class="panel">
+            <p class="eyebrow" data-i18n="departments">Bộ môn</p>
+            <h2 data-i18n="departmentDirectory">Danh mục bộ môn</h2>
+            <form method="post" th:action="@{/projects/departments}">
+                <label><span data-i18n="departmentName">Tên bộ môn mới</span><input name="name" maxlength="150" required></label>
+                <button data-i18n="createDepartment">Thêm bộ môn</button>
+            </form>
+            <div class="table-wrap"><table><thead><tr><th data-i18n="departmentName">Bộ môn</th><th data-i18n="actions">Thao tác</th></tr></thead><tbody>
+                <tr th:each="department : ${departments}">
+                    <td th:text="${department}"></td>
+                    <td class="actions">
+                        <details class="edit-box"><summary data-i18n="editDepartment">Đổi tên</summary>
+                            <form method="post" th:action="@{/projects/departments/update}">
+                                <input type="hidden" name="currentName" th:value="${department}">
+                                <label><span data-i18n="departmentName">Tên bộ môn</span><input name="name" th:value="${department}" maxlength="150" required></label>
+                                <button data-i18n="saveChanges">Lưu thay đổi</button>
+                            </form>
+                        </details>
+                        <form method="post" th:action="@{/projects/departments/delete}" onsubmit="return confirm('Xóa bộ môn này?')">
+                            <input type="hidden" name="name" th:value="${department}">
+                            <button class="secondary" data-i18n="delete">Xóa</button>
+                        </form>
+                    </td>
+                </tr>
+            </tbody></table></div>
+        </section>
+    </section>
+</main>
+
+<dialog id="topic-dialog" aria-labelledby="dialog-title">
+    <div class="dialog-body">
+        <p class="eyebrow" data-i18n="topicDetails">Chi tiết đề tài</p>
+        <h2 id="dialog-title" data-i18n="topicInformation">Thông tin hướng dẫn và đăng ký</h2>
+        <div class="detail-row"><strong data-i18n="supervisor">Giảng viên hướng dẫn</strong><span id="detail-supervisor"></span></div>
+        <div class="detail-row"><strong data-i18n="registeredStudents">Số sinh viên đã đăng ký</strong><span id="detail-registered"></span></div>
+        <div class="dialog-actions"><button type="button" class="secondary" id="close-dialog" data-i18n="close">Đóng</button></div>
+    </div>
+</dialog>
+<script>
+    // Bản dịch áp dụng trên text giao diện; dữ liệu do người dùng nhập được giữ nguyên.
+    const translations = {
+        vi: { darkMode:"Giao diện tối",lightMode:"Giao diện sáng",logout:"Đăng xuất",pageTitle:"Quản lý đề tài sinh viên",pageSubtitle:"Quản lý đợt · đề tài · đăng ký · hướng dẫn · kết quả",overview:"Tổng quan",periods:"Đợt đăng ký",topics:"Đề tài",groupsResults:"Nhóm & kết quả",accounts:"Tài khoản",createAccount:"Thêm tài khoản",accountDirectory:"Danh mục tài khoản",accountType:"Vai trò",studentRole:"Sinh viên",teacherRole:"Giáo viên",username:"Tên đăng nhập",password:"Mật khẩu",displayName:"Họ tên",studentId:"Mã sinh viên",protectedAdmin:"Tài khoản được bảo vệ",manage:"Quản lý",delete:"Xóa",statPeriods:"Đợt đăng ký",statTopics:"Đề tài trong hệ thống",statGroups:"Nhóm đăng ký",statOpenTopics:"Đề tài đang mở",workspace:"Không gian làm việc",quickAccess:"Truy cập nhanh",browseTopics:"Xem danh sách đề tài",viewPeriods:"Xem các đợt đăng ký",viewGroups:"Nhóm và kết quả",dataNote:"Thay đổi được lưu tự động và vẫn còn sau khi khởi động lại ứng dụng.",facultyOffice:"Ban chủ nhiệm khoa",createPeriod:"Tạo đợt đăng ký",periodName:"Tên đợt",projectType:"Loại đề tài",teacherStart:"Giáo viên bắt đầu",teacherEnd:"Giáo viên kết thúc",studentStart:"Sinh viên bắt đầu",studentEnd:"Sinh viên kết thúc",reviewDeadline:"Hạn nộp điểm phản biện",defenseDate:"Ngày hội đồng",createPeriodButton:"Tạo đợt đăng ký",schedule:"Lịch học vụ",periodList:"Các đợt đăng ký",teacherRegistration:"Đăng ký GV",studentRegistration:"Đăng ký SV",keyDates:"Mốc quan trọng",status:"Trạng thái",noPeriods:"Chưa có đợt đăng ký.",teacherWorkspace:"Giảng viên",addTopic:"Thêm đề tài",topicTitle:"Tên đề tài",topicContent:"Nội dung đề tài",department:"Bộ môn",chooseDepartment:"Chọn bộ môn",supervisor:"Giảng viên hướng dẫn",period:"Đợt đăng ký",saveTopic:"Lưu đề tài",topicDirectory:"Danh mục đề tài",topicList:"Danh sách đề tài",viewDetails:"Chi tiết",publish:"Công bố",editTopic:"Chỉnh sửa",saveChanges:"Lưu thay đổi",noTopics:"Chưa có đề tài.",studentWorkspace:"Sinh viên",registerGroup:"Đăng ký nhóm",groupLimit:"Nhóm có tối đa 5 sinh viên. Mỗi đề tài chỉ nhận một nhóm đăng ký.",groupName:"Tên nhóm",groupLeader:"Nhóm trưởng",studentIds:"Mã sinh viên, phân cách bằng dấu phẩy",selectTopic:"Chọn đề tài",submitRegistration:"Gửi đăng ký",noAvailableTopics:"Hiện không còn đề tài mở đăng ký.",assessment:"Theo dõi thực hiện",groupMembers:"Nhóm / thành viên",topic:"Đề tài",score:"Điểm",actions:"Thao tác",approve:"Duyệt",submitReport:"Nộp báo cáo",reviewerScore:"Điểm phản biện",councilScore:"Điểm hội đồng",gradePublish:"Chấm điểm & công bố",noGroups:"Chưa có nhóm đăng ký.",gradingRestricted:"Chấm điểm và công bố kết quả chỉ dành cho ban chủ nhiệm khoa.",topicDetails:"Chi tiết đề tài",topicInformation:"Thông tin hướng dẫn và đăng ký",registeredStudents:"Số sinh viên đã đăng ký",close:"Đóng" },
+        en: { darkMode:"Dark mode",lightMode:"Light mode",logout:"Log out",pageTitle:"Student project management",pageSubtitle:"Manage periods · topics · registrations · supervision · results",overview:"Overview",periods:"Registration periods",topics:"Topics",groupsResults:"Groups & results",accounts:"Accounts",createAccount:"Add account",accountDirectory:"Account directory",accountType:"Role",studentRole:"Student",teacherRole:"Teacher",username:"Username",password:"Password",displayName:"Full name",studentId:"Student ID",protectedAdmin:"Protected account",manage:"Manage",delete:"Delete",statPeriods:"Registration periods",statTopics:"Topics in the system",statGroups:"Registered groups",statOpenTopics:"Open topics",workspace:"Workspace",quickAccess:"Quick access",browseTopics:"Browse topics",viewPeriods:"View registration periods",viewGroups:"Groups and results",dataNote:"Changes are saved automatically and remain available after the application restarts.",facultyOffice:"Faculty administration",createPeriod:"Create registration period",periodName:"Period name",projectType:"Project type",teacherStart:"Teacher start",teacherEnd:"Teacher end",studentStart:"Student start",studentEnd:"Student end",reviewDeadline:"Reviewer score deadline",defenseDate:"Defense date",createPeriodButton:"Create period",schedule:"Academic schedule",periodList:"Registration periods",teacherRegistration:"Teacher registration",studentRegistration:"Student registration",keyDates:"Key dates",status:"Status",noPeriods:"No registration periods yet.",teacherWorkspace:"Teacher workspace",addTopic:"Add a topic",topicTitle:"Topic title",topicContent:"Topic description",department:"Department",chooseDepartment:"Choose a department",supervisor:"Supervisor (locked to your account)",period:"Registration period",saveTopic:"Save topic",topicDirectory:"Topic directory",topicList:"Topic list",viewDetails:"Details",publish:"Publish",editTopic:"Edit",saveChanges:"Save changes",noTopics:"No topics yet.",studentWorkspace:"Student workspace",registerGroup:"Register a group",groupLimit:"A group may have up to 5 students. Each topic accepts one group.",groupName:"Group name",groupLeader:"Group leader",studentIds:"Student IDs, separated by commas",selectTopic:"Select a topic",submitRegistration:"Submit registration",noAvailableTopics:"There are no open topics available.",assessment:"Project tracking",groupMembers:"Group / members",topic:"Topic",score:"Score",actions:"Actions",approve:"Approve",submitReport:"Submit report",reviewerScore:"Reviewer score",councilScore:"Council score",gradePublish:"Grade & publish",noGroups:"No registered groups yet.",gradingRestricted:"Only faculty administrators can enter scores and publish results.",topicDetails:"Topic details",topicInformation:"Supervisor and registration",registeredStudents:"Registered students",close:"Close" }
+    };
+    translations.vi.approveTopic = "Duyệt đề tài";
+    translations.en.approveTopic = "Approve topic";
+    translations.vi.teacherRole = "Giảng viên";
+    translations.en.teacherRole = "Lecturer";
+    Object.assign(translations.vi, {
+        notifications:"Thông báo", announcements:"Thông báo", createAnnouncement:"Tạo thông báo",
+        notificationTitle:"Tiêu đề", notificationMessage:"Nội dung", publishAnnouncement:"Đăng thông báo",
+        notificationRecipients:"Tích chọn người nhận",
+        notificationInbox:"Hộp thông báo", noNotifications:"Chưa có thông báo.", markRead:"Đánh dấu đã đọc",
+        searchKeyword:"Từ khóa", allDepartments:"Tất cả bộ môn", allPeriods:"Tất cả đợt",
+        topicStatus:"Trạng thái đề tài", allStatuses:"Tất cả trạng thái", search:"Tìm kiếm",
+        departments:"Bộ môn", departmentDirectory:"Danh mục bộ môn",
+        departmentName:"Tên bộ môn", createDepartment:"Thêm bộ môn", editDepartment:"Đổi tên",
+        exportExcel:"Xuất Excel", lookupPeriod:"Tra cứu theo đợt"
+    });
+    Object.assign(translations.en, {
+        notifications:"Notifications", announcements:"Notifications", createAnnouncement:"Create notification",
+        notificationTitle:"Title", notificationMessage:"Message", publishAnnouncement:"Publish announcement",
+        notificationRecipients:"Check recipients",
+        notificationInbox:"Notification inbox", noNotifications:"No notifications yet.", markRead:"Mark as read",
+        searchKeyword:"Keyword", allDepartments:"All departments", allPeriods:"All periods",
+        topicStatus:"Topic status", allStatuses:"All statuses", search:"Search",
+        departments:"Departments", departmentDirectory:"Department directory",
+        departmentName:"Department name", createDepartment:"Add department", editDepartment:"Rename",
+        exportExcel:"Export to Excel", lookupPeriod:"Look up by registration period"
+    });
+    const languageButton = document.getElementById("language-toggle");
+    const themeButton = document.getElementById("theme-toggle");
+    const dialog = document.getElementById("topic-dialog");
+    // Các nhãn lưu theo enum/trạng thái tiếng Việt được ánh xạ theo mã ổn định để tránh phụ thuộc text hiện hành.
+    const dynamicLabels = {
+        en: {
+            roles: { "Ban chủ nhiệm khoa":"Faculty administrator", "Giáo viên":"Teacher", "Sinh viên":"Student" },
+            types: { MON_HOC:"Course project", NCKH:"Scientific research", TLCN:"Specialized essay", KLTN:"Graduation thesis" },
+            departments: { "Công nghệ phần mềm":"Software Engineering", "Hệ thống thông tin":"Information Systems", "Khoa học máy tính":"Computer Science", "Mạng máy tính và truyền thông":"Computer Networks and Communications", "Kỹ thuật máy tính":"Computer Engineering" },
+            statuses: { "Bản nháp":"Draft", "Đã công bố":"Published", "Đã phân công":"Assigned", "Đã hoàn thành":"Completed", "Đang công bố":"Published", "Chờ duyệt":"Pending approval", "Đã duyệt":"Approved", "Chờ phản biện":"Awaiting review", "Đã công bố kết quả":"Results published" },
+            reviewPrefix:"Reviewer deadline", defensePrefix:"Defense"
+        },
+        vi: {
+            roles: { "Ban chủ nhiệm khoa":"Ban chủ nhiệm khoa", "Giáo viên":"Giáo viên", "Sinh viên":"Sinh viên" },
+            types: { MON_HOC:"Môn học", NCKH:"NCKH", TLCN:"TLCN", KLTN:"KLTN" },
+            departments: { "Công nghệ phần mềm":"Công nghệ phần mềm", "Hệ thống thông tin":"Hệ thống thông tin", "Khoa học máy tính":"Khoa học máy tính", "Mạng máy tính và truyền thông":"Mạng máy tính và truyền thông", "Kỹ thuật máy tính":"Kỹ thuật máy tính" },
+            statuses: { "Bản nháp":"Bản nháp", "Đã công bố":"Đã công bố", "Đã phân công":"Đã phân công", "Đã hoàn thành":"Đã hoàn thành", "Đang công bố":"Đang công bố", "Chờ duyệt":"Chờ duyệt", "Đã duyệt":"Đã duyệt", "Chờ phản biện":"Chờ phản biện", "Đã công bố kết quả":"Đã công bố kết quả" },
+            reviewPrefix:"Nộp điểm", defensePrefix:"Báo cáo"
+        }
+    };
+    dynamicLabels.en.roles = {
+        "Trưởng khoa":"Dean", "Trưởng bộ môn":"Department head", "Giảng viên":"Lecturer",
+        "Giảng viên hướng dẫn":"Supervisor", "Giảng viên phản biện":"Reviewer",
+        "Hội đồng":"Council", "Sinh viên":"Student"
+    };
+    dynamicLabels.vi.roles = {
+        "Trưởng khoa":"Trưởng khoa", "Trưởng bộ môn":"Trưởng bộ môn", "Giảng viên":"Giảng viên",
+        "Giảng viên hướng dẫn":"Giảng viên hướng dẫn", "Giảng viên phản biện":"Giảng viên phản biện",
+        "Hội đồng":"Hội đồng", "Sinh viên":"Sinh viên"
+    };
+
+    // Enum, trạng thái và nhãn danh mục lưu dạng tiếng Việt nên ánh xạ riêng khi hiển thị tiếng Anh.
+    function translateDynamicLabels(language) {
+        const labels = dynamicLabels[language];
+        document.querySelectorAll("[data-role]").forEach(element => element.textContent = labels.roles[element.dataset.role]);
+        document.querySelectorAll("[data-type]").forEach(element => element.textContent = labels.types[element.dataset.type]);
+        document.querySelectorAll("[data-department]").forEach(element => element.textContent = labels.departments[element.dataset.department]);
+        document.querySelectorAll("[data-status]").forEach(element => element.textContent = labels.statuses[element.dataset.status]);
+        document.querySelectorAll(".localized-date").forEach(element => {
+            const prefix = element.dataset.dateKind === "review" ? labels.reviewPrefix : labels.defensePrefix;
+            element.textContent = `${prefix}: ${element.dataset.date}`;
+        });
+    }
+
+    // Lưu lựa chọn trong trình duyệt để dùng thống nhất ở trang đăng nhập và dashboard.
+    function setLanguage(language) {
+        document.documentElement.lang = language;
+        document.querySelectorAll("[data-i18n]").forEach(element => {
+            const key = element.dataset.i18n;
+            if (translations[language][key]) element.textContent = translations[language][key];
+        });
+        translateDynamicLabels(language);
+        languageButton.textContent = language === "vi" ? "EN" : "VI";
+        themeButton.querySelector("[data-i18n]").textContent =
+            translations[language][document.body.dataset.theme === "dark" ? "lightMode" : "darkMode"];
+        localStorage.setItem("topic-language", language);
+    }
+    // Chủ đề sáng/tối cũng được giữ ở localStorage, không làm thay đổi dữ liệu phía server.
+    function setTheme(theme) {
+        document.body.dataset.theme = theme;
+        themeButton.firstChild.textContent = theme === "dark" ? "☀️ " : "🌙 ";
+        const language = localStorage.getItem("topic-language") || "vi";
+        themeButton.querySelector("[data-i18n]").textContent =
+            translations[language][theme === "dark" ? "lightMode" : "darkMode"];
+        localStorage.setItem("topic-theme", theme);
+    }
+    document.querySelectorAll("[data-tab]").forEach(button => button.addEventListener("click", () => {
+        document.querySelectorAll("[data-tab]").forEach(tab => tab.classList.toggle("active", tab === button));
+        document.querySelectorAll("[data-panel]").forEach(panel => panel.hidden = panel.dataset.panel !== button.dataset.tab);
+    }));
+    document.querySelectorAll("[data-go-tab]").forEach(button => button.addEventListener("click", () => {
+        document.querySelector(`[data-tab="${button.dataset.goTab}"]`).click();
+    }));
+    languageButton.addEventListener("click", () =>
+        setLanguage((localStorage.getItem("topic-language") || "vi") === "vi" ? "en" : "vi"));
+    themeButton.addEventListener("click", () =>
+        setTheme((localStorage.getItem("topic-theme") || "light") === "light" ? "dark" : "light"));
+    document.querySelectorAll("[data-topic-detail]").forEach(button => button.addEventListener("click", () => {
+        document.getElementById("detail-supervisor").textContent = button.dataset.supervisor;
+        const language = localStorage.getItem("topic-language") || "vi";
+        document.getElementById("detail-registered").textContent =
+            `${button.dataset.registered} / 5 ${language === "vi" ? "sinh viên" : "students"}`;
+        dialog.showModal();
+    }));
+    document.getElementById("close-dialog").addEventListener("click", () => dialog.close());
+    dialog.addEventListener("click", event => { if (event.target === dialog) dialog.close(); });
+    const accountRole = document.getElementById("account-role");
+    if (accountRole) {
+        const studentIdField = document.getElementById("student-id-field");
+        const studentIdInput = studentIdField.querySelector("input");
+        const updateStudentIdVisibility = () => {
+            const isStudent = accountRole.value === "STUDENT";
+            studentIdField.hidden = !isStudent;
+            studentIdInput.required = isStudent;
+        };
+        accountRole.addEventListener("change", updateStudentIdVisibility);
+        updateStudentIdVisibility();
+    }
+    setTheme(localStorage.getItem("topic-theme") || "light");
+    setLanguage(localStorage.getItem("topic-language") || "vi");
+</script>
+</body>
+</html>
